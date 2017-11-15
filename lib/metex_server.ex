@@ -3,23 +3,23 @@ defmodule Metex.Server do
     use GenServer
 
     def start_link(opts \\ []) do
-        GenServer.start_link(__MODULE__, :ok, opts)
+        GenServer.start_link(__MODULE__, :ok, opts ++ [name: __MODULE__])
     end
 
-    def get_status(pid) do
-        GenServer.call(pid, :get_status)
+    def get_status do
+        GenServer.call(__MODULE__, :get_status)
     end
 
-    def reset_status(pid) do
-        GenServer.cast(pid, :reset_status)
+    def reset_status do
+        GenServer.cast(__MODULE__, :reset_status)
     end
 
     def init(:ok) do
         {:ok, %{}}
     end
 
-    def get_temperature(pid, location) do
-        GenServer.call(pid, {:location, location})
+    def get_temperature(location) do
+        GenServer.call(__MODULE__, {:location, location})
     end
 
     defp temperature_of(location) do
@@ -80,5 +80,13 @@ defmodule Metex.Server do
 
     def handle_cast(:reset_status, _status) do
         {:noreply, %{}}
+    end
+
+    def handle_cast(:stop, status) do
+        {:stop, :normal, status}    
+    end
+
+    def stop do
+        GenServer.cast(__MODULE__, :stop)
     end
 end
